@@ -4,6 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const uniqid = require("uniqid");
 const { studentProjects } = require("../projects/utils");
+const { readDB, writeDB } = require("../../lib/utilities");
+const { writeFile } = require("fs-extra");
+const multer = require("multer");
 
 const router = express.Router();
 
@@ -108,5 +111,28 @@ router.get("/:id/projects", (req, res) => {
     res.status(200).send(projects);
   }
 });
+
+// student image upload
+
+const upload = multer({});
+
+const studentsFolderPath = path.join(__dirname, "../../../public/img/students");
+
+router.post(
+  "/:id/uploadPhoto",
+  upload.single("avatar"),
+  async (req, res, next) => {
+    try {
+      await writeFile(
+        path.join(studentsFolderPath, req.params.id + ".jpg"),
+        req.file.buffer
+      );
+      res.send("OK");
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
 
 module.exports = router;

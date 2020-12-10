@@ -4,7 +4,8 @@ const path = require("path");
 const uniqid = require("uniqid");
 const { check, validationResult } = require("express-validator");
 const { findByID, addPropertyNoProject } = require("./utils");
-
+const { writeFile } = require("fs-extra");
+const multer = require("multer");
 const router = express.Router();
 
 const fileRead = (fileName) => {
@@ -202,5 +203,28 @@ router.delete("/:id", (req, res, next) => {
     next(error);
   }
 });
+
+// project photoUpload
+
+const upload = multer({});
+
+const projectsFolderPath = path.join(__dirname, "../../../public/img/projects");
+
+router.post(
+  "/:id/uploadPhoto",
+  upload.single("avatar"),
+  async (req, res, next) => {
+    try {
+      await writeFile(
+        path.join(projectsFolderPath, req.params.id + req.file.originalname),
+        req.file.buffer
+      );
+      res.send("OK");
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
