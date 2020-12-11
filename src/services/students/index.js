@@ -127,6 +127,14 @@ router.post(
         path.join(studentsFolderPath, req.params.id + ".jpg"),
         req.file.buffer
       );
+
+      const studentsDB = await readDB(path.join(__dirname, "students.json"));
+      student = studentsDB.find((student) => student.ID === req.params.id);
+
+      student.image = studentsFolderPath + `/${req.params.id}.jpg`;
+
+      await writeDB(path.join(__dirname, "students.json"), studentsDB);
+
       res.send("OK");
     } catch (error) {
       console.log(error);
